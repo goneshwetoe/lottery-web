@@ -10,28 +10,25 @@
 
   <h1>🎰 Lottery Web App</h1>
   <p>GitHub Pages OK</p>
-  <p>Firebase Connected ✅</p>
 
-  <hr style="margin:30px 0">
+  <hr style="margin:30px 0;">
 
+  <!-- ✅ Register Form (HTML only) -->
   <h2>Register</h2>
 
-  <input id="email" placeholder="Email" />
-  <br><br>
-  <input id="password" placeholder="Password" type="password" />
-  <br><br>
+  <input id="email" placeholder="email"><br><br>
+  <input id="password" type="password" placeholder="password"><br><br>
   <button id="register">Register</button>
 
-  <!-- Firebase + Logic -->
+  <!-- ✅ Firebase + Auth -->
   <script type="module">
-    // 1️⃣ Import Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { 
       getAuth, 
       createUserWithEmailAndPassword 
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-    // 2️⃣ Firebase Config
+    // 🔥 Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
       authDomain: "lottery-web-app-53855.firebaseapp.com",
@@ -41,26 +38,21 @@
       appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
     };
 
-    // 3️⃣ Initialize Firebase
+    // ✅ Init Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    console.log("Firebase & Auth Ready ✅");
+    console.log("Firebase Connected ✅");
 
-    // 4️⃣ Register Button Logic
+    // ✅ Register Button Click
     document.getElementById("register").onclick = () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      if (!email || !password) {
-        alert("Email & Password ထည့်ပါ");
-        return;
-      }
-
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           console.log("Register success ✅", userCredential.user.email);
-          alert("Register Success ✅");
+          alert("Register success ✅");
         })
         .catch((error) => {
           console.error(error.message);
@@ -69,7 +61,7 @@
     };
   </script>
 
-  <!-- Mobile Console (Eruda) -->
+  <!-- 📱 Mobile Console (Eruda) -->
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
   <script>eruda.init();</script>
 

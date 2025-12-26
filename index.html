@@ -11,5 +11,29 @@
   <p>GitHub Pages OK</p>
   <p>Firebase coming next...</p>
 
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
+    authDomain: "lottery-web-app-53855.firebaseapp.com",
+    projectId: "lottery-web-app-53855",
+    storageBucket: "lottery-web-app-53855.firebasestorage.app",
+    messagingSenderId: "183286316320",
+    appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  // Services
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  console.log("Firebase Connected ✅");
+  </script>
+  
 </body>
 </html>

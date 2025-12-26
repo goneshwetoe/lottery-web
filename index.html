@@ -5,82 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lottery System</title>
 </head>
+
 <body style="background:#020617;color:white;font-family:sans-serif;text-align:center;padding-top:40px">
 
   <h1>🎰 Lottery Web App</h1>
   <p>GitHub Pages OK</p>
-  <p>Firebase coming next...</p>
+  <p>Firebase Connected ✅</p>
 
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-  
+  <hr style="margin:30px 0">
 
   <h2>Register</h2>
 
-  <input id="email" placeholder="email">
+  <input id="email" placeholder="Email" />
   <br><br>
-  <input id="password" placeholder="password" type="password">
+  <input id="password" placeholder="Password" type="password" />
   <br><br>
   <button id="register">Register</button>
 
-    
-  const firebaseConfig = {
-    apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
-    authDomain: "lottery-web-app-53855.firebaseapp.com",
-    projectId: "lottery-web-app-53855",
-    storageBucket: "lottery-web-app-53855.firebasestorage.app",
-    messagingSenderId: "183286316320",
-    appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-
-  // Services
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  console.log("Firebase Connected ✅");
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
-
+  <!-- Firebase + Logic -->
   <script type="module">
+    // 1️⃣ Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword 
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    // 2️⃣ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
+      authDomain: "lottery-web-app-53855.firebaseapp.com",
+      projectId: "lottery-web-app-53855",
+      storageBucket: "lottery-web-app-53855.firebasestorage.app",
+      messagingSenderId: "183286316320",
+      appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
+    };
+
+    // 3️⃣ Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    console.log("Firebase & Auth Ready ✅");
+
+    // 4️⃣ Register Button Logic
     document.getElementById("register").onclick = () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      console.log("Register success ✅", userCredential.user.email);
-    })
-    .catch((error) => {
-      console.error(error.message);
-    });
-};
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { 
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+      if (!email || !password) {
+        alert("Email & Password ထည့်ပါ");
+        return;
+      }
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
-    authDomain: "lottery-web-app-53855.firebaseapp.com",
-    projectId: "lottery-web-app-53855",
-    storageBucket: "lottery-web-app-53855.firebasestorage.app",
-    messagingSenderId: "183286316320",
-    appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  console.log("Auth Ready ✅");
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          console.log("Register success ✅", userCredential.user.email);
+          alert("Register Success ✅");
+        })
+        .catch((error) => {
+          console.error(error.message);
+          alert(error.message);
+        });
+    };
   </script>
+
+  <!-- Mobile Console (Eruda) -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
+
 </body>
 </html>

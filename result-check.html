@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Result Checker</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+<script>
+/* ============ FIREBASE INIT ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
+  authDomain: "lottery-web-app-53855.firebaseapp.com",
+  projectId: "lottery-web-app-53855",
+  storageBucket: "lottery-web-app-53855.firebasestorage.app",
+  messagingSenderId: "183286316320",
+  appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ============ MOCK RESULT (API နောက်မှချိတ်လို့ရ) ============ */
+const CURRENT_2D = "45";
+const CURRENT_3D = "123";
+
+/* ============ CHECK BETS ============ */
+async function checkResults() {
+
+  const bets = await db.collection("bets")
+    .where("checked", "==", false)
+    .get();
+
+  bets.forEach(async doc => {
+    const bet = doc.data();
+    let win = 0;
+
+    if (bet.type === "2D" && bet.number === CURRENT_2D) {
+      win = bet.amount * 80;
+    }
+
+    if (bet.type === "3D" && bet.number === CURRENT_3D) {
+      win = bet.amount * 500;
+    }
+
+    if (win > 0) {
+      await db.collection("users").doc(bet.uid).update({
+        coin: firebase.firestore.FieldValue.increment(win)
+      });
+
+      alert("🎉 ထီပေါက်ပါသည်! +" + win + " coin");
+    }
+
+    await db.collection("bets").doc(doc.id).update({
+      checked: true,
+      win: win
+    });
+  });
+}
+
+/* Run every 30 seconds */
+setInterval(checkResults, 30000);
+</script>
+</body>
+</html>

@@ -1,1 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rank | 2D 3D Lottery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="bg-slate-950 text-white pb-24">
+
+<div class="p-4 text-center border-b border-slate-800">
+  <h1 class="text-xl font-black">🏆 TOP RANK</h1>
+  <p class="text-xs text-slate-400">Coin အများဆုံး Users</p>
+</div>
+
+<div class="max-w-md mx-auto px-4 mt-4 space-y-3" id="rankList">
+  Loading...
+</div>
+
+<div class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around py-3 text-xs">
+  <a href="home.html">🏠 Home</a>
+  <a href="2d.html">📺 2D</a>
+  <a href="3d.html">📆 3D</a>
+  <a href="rank.html" class="text-cyan-400 font-bold">🏆 Rank</a>
+</div>
+
+<script>
+/* ============ FIREBASE INIT ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
+  authDomain: "lottery-web-app-53855.firebaseapp.com",
+  projectId: "lottery-web-app-53855",
+  storageBucket: "lottery-web-app-53855.firebasestorage.app",
+  messagingSenderId: "183286316320",
+  appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ============ LOAD RANK ============ */
+db.collection("users")
+  .orderBy("coin", "desc")
+  .limit(10)
+  .onSnapshot(snapshot => {
+    const box = document.getElementById("rankList");
+    box.innerHTML = "";
+    let i = 1;
+
+    snapshot.forEach(doc => {
+      const u = doc.data();
+      box.innerHTML += `
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex justify-between">
+          <span>#${i} ${u.username}</span>
+          <span class="text-cyan-400 font-bold">${u.coin}</span>
+        </div>
+      `;
+      i++;
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,1 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home | 2D 3D Lottery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="bg-slate-950 text-white pb-24">
+
+<!-- TOP BAR -->
+<div class="fixed top-0 left-0 right-0 bg-slate-900 border-b border-slate-800 px-4 py-3 flex justify-between items-center z-50">
+  <div>
+    <h1 class="text-sm font-black">2D 3D LOTTERY</h1>
+    <p id="username" class="text-xs text-cyan-400">Loading...</p>
+  </div>
+  <div class="text-right">
+    <p class="text-xs text-slate-400">COIN</p>
+    <p id="coin" class="font-black text-cyan-400">0</p>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="pt-24 px-4 space-y-6 max-w-md mx-auto">
+
+  <!-- BET BOX -->
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+    <h2 class="font-black mb-4 text-center">2D / 3D ထိုးရန်</h2>
+
+    <select id="betType" class="w-full mb-3 p-3 rounded-xl bg-slate-800 border border-slate-700">
+      <option value="2D">2D</option>
+      <option value="3D">3D</option>
+    </select>
+
+    <input id="betNumber" type="number" placeholder="နံပါတ်"
+      class="w-full mb-3 p-3 rounded-xl bg-slate-800 border border-slate-700">
+
+    <input id="betAmount" type="number" placeholder="Coin (eg. 1000)"
+      class="w-full mb-4 p-3 rounded-xl bg-slate-800 border border-slate-700">
+
+    <button onclick="placeBet()"
+      class="w-full bg-cyan-500 text-black font-black py-3 rounded-xl">
+      ထိုးမယ်
+    </button>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+    <h2 class="font-black mb-4">ထိုးပြီးသား History</h2>
+    <div id="history" class="space-y-2 text-sm text-slate-300">
+      Loading...
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM MENU -->
+<div class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around py-3 text-xs">
+  <a href="home.html" class="text-cyan-400 font-bold">🏠 Home</a>
+  <a href="2d.html">📺 2D Live</a>
+  <a href="3d.html">📆 3D</a>
+  <a href="rank.html">🏆 Rank</a>
+</div>
+
+<script>
+/* ================= FIREBASE INIT ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
+  authDomain: "lottery-web-app-53855.firebaseapp.com",
+  projectId: "lottery-web-app-53855",
+  storageBucket: "lottery-web-app-53855.firebasestorage.app",
+  messagingSenderId: "183286316320",
+  appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser;
+let userCoin = 0;
+
+/* ================= AUTH CHECK ================= */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+  currentUser = user;
+  loadUser();
+  loadHistory();
+});
+
+/* ================= LOAD USER ================= */
+function loadUser() {
+  db.collection("users").doc(currentUser.uid)
+    .onSnapshot(doc => {
+      const data = doc.data();
+      document.getElementById("username").innerText = data.username;
+      document.getElementById("coin").innerText = data.coin;
+      userCoin = data.coin;
+    });
+}
+
+/* ================= PLACE BET ================= */
+function placeBet() {
+  const type = document.getElementById("betType").value;
+  const number = document.getElementById("betNumber").value;
+  const amount = parseInt(document.getElementById("betAmount").value);
+
+  if (!number || !amount) {
+    alert("အချက်အလက်ပြည့်စုံပါ");
+    return;
+  }
+
+  if (amount > userCoin) {
+    alert("Coin မလုံလောက်ပါ");
+    return;
+  }
+
+  db.collection("bets").add({
+    uid: currentUser.uid,
+    type: type,
+    number: number,
+    amount: amount,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  db.collection("users").doc(currentUser.uid).update({
+    coin: firebase.firestore.FieldValue.increment(-amount)
+  });
+
+  alert("ထိုးပြီးပါပြီ");
+}
+
+/* ================= LOAD HISTORY ================= */
+function loadHistory() {
+  db.collection("bets")
+    .where("uid", "==", currentUser.uid)
+    .orderBy("time", "desc")
+    .limit(10)
+    .onSnapshot(snapshot => {
+      const box = document.getElementById("history");
+      box.innerHTML = "";
+      snapshot.forEach(doc => {
+        const b = doc.data();
+        box.innerHTML += `
+          <div class="flex justify-between border-b border-slate-800 pb-1">
+            <span>${b.type} - ${b.number}</span>
+            <span>${b.amount} coin</span>
+          </div>
+        `;
+      });
+    });
+}
+</script>
+
+</body>
+</html>

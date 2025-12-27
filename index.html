@@ -2,245 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ARKARSOE Lottery System</title>
+  <title>2D 3D Lottery | Loading</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Basic Style -->
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDK (COMPAT for CDN use) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
   <style>
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
-      background: #020617;
-      color: #fff;
-    }
-    .hidden { display: none; }
-
-    /* Loading */
-    #loading {
-      position: fixed;
-      inset: 0;
-      background: #020617;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* Layout */
-    header {
-      padding: 14px 16px;
-      border-bottom: 1px solid #1e293b;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    main {
-      padding: 16px;
-      padding-bottom: 90px;
+    @keyframes slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
 
-    /* Bottom Menu */
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #020617;
-      border-top: 1px solid #1e293b;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    nav button {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 12px;
-    }
-    nav button.active {
-      color: #22d3ee;
-      font-weight: bold;
-    }
-
-    /* Cards */
-    .card {
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    input {
-      background: #020617;
-      border: 1px solid #334155;
-      color: white;
-    }
-    button.primary {
-      background: #22d3ee;
-      color: #020617;
-      font-weight: bold;
+    .loading-bar {
+      animation: slide 1.8s linear infinite;
     }
   </style>
 </head>
-<body>
 
-<!-- LOADING -->
-<div id="loading">
-  <h1>ARKARSOE.SYS</h1>
-  <p>Loading system...</p>
-</div>
+<body class="bg-slate-950 text-white">
 
-<!-- AUTH PAGE -->
-<div id="authPage" class="hidden">
-  <main>
-    <div class="card">
-      <h2>Register / Login</h2>
-      <input id="email" placeholder="Email" />
-      <input id="password" type="password" placeholder="Password" />
-      <button id="registerBtn" class="primary">Register</button>
-      <button id="loginBtn">Login</button>
-    </div>
-  </main>
-</div>
+  <!-- Loading Screen -->
+  <div class="fixed inset-0 flex flex-col items-center justify-center px-6">
 
-<!-- HOME PAGE -->
-<div id="homePage" class="hidden">
-  <header>
-    <div>
-      <div id="siteName">🎰 ARKARSOE</div>
-      <small id="userName">User</small>
-    </div>
-    <div>
-      💰 <span id="coin">0</span>
-    </div>
-  </header>
-
-  <main>
-    <div class="card">
-      <h3>2D / 3D Betting Area</h3>
-      <p>Coming next step…</p>
+    <!-- Logo -->
+    <div class="w-24 h-24 rounded-3xl bg-cyan-500/10 border border-cyan-400/30
+                flex items-center justify-center mb-8 animate-pulse">
+      <span class="text-4xl font-black text-cyan-400">2D</span>
     </div>
 
-    <div class="card">
-      <h3>Your History</h3>
-      <div id="history">No bets yet</div>
+    <!-- Website Name -->
+    <h1 class="text-2xl font-extrabold tracking-tight mb-2">
+      2D 3D LOTTERY
+    </h1>
+
+    <p class="text-cyan-400 text-sm mb-6 font-bold tracking-widest">
+      ARKARSOE SYSTEM
+    </p>
+
+    <!-- Loading Bar -->
+    <div class="w-full max-w-xs h-2 bg-slate-800 rounded-full overflow-hidden">
+      <div class="h-full w-1/2 bg-cyan-500 loading-bar"></div>
     </div>
-  </main>
 
-  <nav>
-    <button id="homeTab" class="active">Home</button>
-    <button id="live2dTab">2D Live</button>
-    <button id="calendar3dTab">3D</button>
-    <button id="rankTab">Rank</button>
-  </nav>
-</div>
+    <!-- Status Text -->
+    <p id="statusText" class="mt-6 text-xs tracking-widest text-cyan-300">
+      SYSTEM INITIALIZING...
+    </p>
 
-<!-- Firebase + Logic -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  </div>
 
-  /* Firebase Config */
-  const firebaseConfig = {
-    apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
-    authDomain: "lottery-web-app-53855.firebaseapp.com",
-    projectId: "lottery-web-app-53855",
-    storageBucket: "lottery-web-app-53855.firebasestorage.app",
-    messagingSenderId: "183286316320",
-    appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
-  };
+  <!-- Firebase Init -->
+  <script>
+    // Firebase Config (မင်း project အစစ်)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL1TCCyE7oBWUUvHOzjyW-X0BZ1MvUSaY",
+      authDomain: "lottery-web-app-53855.firebaseapp.com",
+      projectId: "lottery-web-app-53855",
+      storageBucket: "lottery-web-app-53855.firebasestorage.app",
+      messagingSenderId: "183286316320",
+      appId: "1:183286316320:web:4c3c7491c05ea8f0d6ab45"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
 
-  const loading = document.getElementById("loading");
-  const authPage = document.getElementById("authPage");
-  const homePage = document.getElementById("homePage");
+    const auth = firebase.auth();
 
-  /* AUTH STATE */
-  onAuthStateChanged(auth, async (user) => {
-    loading.classList.add("hidden");
+    const statusText = document.getElementById("statusText");
 
-    if (!user) {
-      authPage.classList.remove("hidden");
-      homePage.classList.add("hidden");
-      return;
-    }
+    // Fake loading steps (UX)
+    setTimeout(() => {
+      statusText.innerText = "CONNECTING TO SERVER...";
+    }, 800);
 
-    authPage.classList.add("hidden");
-    homePage.classList.remove("hidden");
+    setTimeout(() => {
+      statusText.innerText = "CHECKING USER SESSION...";
+    }, 1600);
 
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
-
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        email: user.email,
-        name: user.email.split("@")[0],
-        coin: 5000,
-        createdAt: serverTimestamp()
-      });
-    }
-
-    const userData = (await getDoc(userRef)).data();
-    document.getElementById("userName").innerText = userData.name;
-    document.getElementById("coin").innerText = userData.coin;
-  });
-
-  /* REGISTER */
-  document.getElementById("registerBtn").onclick = async () => {
-    const email = email.value;
-    const password = password.value;
-    await createUserWithEmailAndPassword(auth, email, password);
-  };
-
-  /* LOGIN */
-  document.getElementById("loginBtn").onclick = async () => {
-    const email = email.value;
-    const password = password.value;
-    await signInWithEmailAndPassword(auth, email, password);
-  };
-
-  /* MENU ACTIONS */
-  document.getElementById("live2dTab").onclick = () => {
-    window.location.href = "2d.html"; // <-- မင်းပေးထားတဲ့ 2D code ကို ဒီဖိုင်ထဲထည့်
-  };
-
-  document.getElementById("calendar3dTab").onclick = () => {
-    alert("3D Calendar – next step");
-  };
-
-  document.getElementById("rankTab").onclick = () => {
-    alert("Rank Page – next step");
-  };
-</script>
-
-<!-- Console for Mobile -->
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+    // Auth Check
+    auth.onAuthStateChanged(user => {
+      setTimeout(() => {
+        if (user) {
+          // Login ဝင်ပြီးသား
+          window.location.replace("home.html");
+        } else {
+          // Login မဝင်ရသေး
+          window.location.replace("login.html");
+        }
+      }, 2600);
+    });
+  </script>
 
 </body>
 </html>
